@@ -1,0 +1,6 @@
+.superpowers/
+.superpowers/*
+docs/superpowers/
+.claude/
+.superpowers/
+*.docx
