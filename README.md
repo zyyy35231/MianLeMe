@@ -2,9 +2,9 @@
 
 > **每一次模拟，都离 Offer 更近**
 
-[![GitHub release](https://img.shields.io/badge/release-v1.0.0-blue)](https://github.com/zyyy35231/MianLeMe/releases)
-[![GitHub Pages](https://img.shields.io/badge/demo-online-brightgreen)](https://zyyy35231.github.io/MianLeMe/)
-[![License](https://img.shields.io/badge/License-CC%20BY%20NC%204.0-green)](LICENSE)
+[![Release](https://img.shields.io/badge/release-v1.0.0-blue)](https://github.com/zyyy35231/MianLeMe/releases)
+[![Pages](https://img.shields.io/badge/demo-online-brightgreen)](https://zyyy35231.github.io/MianLeMe/)
+[![License](https://img.shields.io/static/v1?label=license&message=CC%20BY--NC%204.0&color=green)](LICENSE)
 
 「面了么」是一款面向校招场景的 AI 面试模拟工具。上传简历，AI 分析弱点，然后进行沉浸式模拟面试，最后获得多维度评分报告。
 
@@ -93,4 +93,4 @@ MianLeMe/
 
 ## License
 
-MIT © 2026
+[CC BY-NC 4.0](LICENSE) © 2026 zyyy35231 — 署名-非商业使用
