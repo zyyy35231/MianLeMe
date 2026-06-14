@@ -4,7 +4,7 @@
 
 [![GitHub release](https://img.shields.io/badge/release-v1.0.0-blue)](https://github.com/zyyy35231/MianLeMe/releases)
 [![GitHub Pages](https://img.shields.io/badge/demo-online-brightgreen)](https://zyyy35231.github.io/MianLeMe/)
-[![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-green)](LICENSE)
+[![License](https://img.shields.io/badge/License-CC%20BY%20NC%204.0-green)](LICENSE)
 
 「面了么」是一款面向校招场景的 AI 面试模拟工具。上传简历，AI 分析弱点，然后进行沉浸式模拟面试，最后获得多维度评分报告。
 
