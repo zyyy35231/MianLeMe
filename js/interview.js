@@ -172,7 +172,7 @@ MianBa.interview = {
       '      <div class="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">' +
       '        <div id="interview-progress" class="progress-bar h-full bg-blue-500 rounded-full" style="width:' + (qi / cfg.questionCount * 100) + '%"></div>' +
       '      </div>' +
-      '      <span class="text-sm font-medium text-slate-600 whitespace-nowrap">第<span id="q-display">1</span>/' + cfg.questionCount + '题</span>' +
+      '      <span class="text-sm font-medium text-slate-600 whitespace-nowrap">第<span id="q-display">-</span>/' + cfg.questionCount + '题</span>' +
       '    </div>' +
       '    <span id="timer-display" class="text-orange-500 font-mono font-medium whitespace-nowrap">⏱ <span id="timer-seconds">' + MianBa.state.timerSeconds + '</span>s</span>' +
       '  </div>' +
@@ -294,6 +294,7 @@ MianBa.interview = {
 
     MianBa.state.answers.push({ question: currentQ, answer: answer });
     MianBa.state.messages.push({ role: 'user', content: answer });
+    this._updateProgress();
     this._renderHistory();
     this._resetTimer();
 
@@ -313,6 +314,7 @@ MianBa.interview = {
 
     MianBa.state.answers.push({ question: currentQ, answer: '[跳过]' });
     MianBa.state.messages.push({ role: 'user', content: '[跳过此题]' });
+    this._updateProgress();
     this._renderHistory();
     this._resetTimer();
 
@@ -329,7 +331,7 @@ MianBa.interview = {
     var progress = document.getElementById('interview-progress');
     var qDisplay = document.getElementById('q-display');
     if (progress) progress.style.width = (qi / total * 100) + '%';
-    if (qDisplay) qDisplay.textContent = qi;
+    if (qDisplay) qDisplay.textContent = qi || '-';
   },
 
   // ===== 向AI发送请求 =====
