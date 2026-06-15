@@ -14,7 +14,8 @@ MianBa.interview = {
     var difficulties = MianBa.Config.DIFFICULTIES;
     var counts = MianBa.Config.QUESTION_COUNTS;
 
-    var lastDesc = MianBa.state.customPositionDesc || '';
+    var matchCtx = MianBa.state.matchContext;
+    var lastDesc = MianBa.state.customPositionDesc || (matchCtx && matchCtx.jdText ? matchCtx.jdText : '');
 
     var diffDescs = {
       '初级': '侧重基础概念、行为面试题，适合初次练习',
@@ -30,7 +31,23 @@ MianBa.interview = {
     container.innerHTML =
       '<div class="p-8 flex flex-col items-center">' +
       '  <h2 class="text-2xl font-bold text-slate-800 mb-2">模拟面试</h2>' +
-      '  <p class="text-sm text-slate-500 mb-8">配置面试参数，AI面试官将根据你的选择进行针对性提问</p>' +
+      '  <p class="text-sm text-slate-500 mb-6">配置面试参数，AI面试官将根据你的选择进行针对性提问</p>' +
+      (matchCtx && matchCtx.fromMatch
+        ? '<div class="card p-4 mb-6 max-w-xl w-full border-l-4 border-blue-500 bg-blue-50/50">' +
+          '  <div class="flex items-start gap-3">' +
+          '    <i data-lucide="target" class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5"></i>' +
+          '    <div>' +
+          '      <p class="text-sm font-medium text-blue-700">已从岗位匹配同步薄弱项</p>' +
+          '      <p class="text-xs text-blue-600 mt-1">AI将针对你的匹配差距（匹配度 <strong>' + (matchCtx.matchScore || '?') + '%</strong>）定向出题：</p>' +
+          '      <div class="flex flex-wrap gap-1 mt-2">' +
+          (matchCtx.gaps || []).slice(0, 4).map(function(g) {
+            return '<span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px]">' + (g.length > 30 ? g.substring(0, 30) + '...' : g) + '</span>';
+          }).join('') +
+          '      </div>' +
+          '    </div>' +
+          '  </div>' +
+          '</div>'
+        : '') +
       '  <div class="card p-6 w-full max-w-xl">' +
       // 岗位类型
       '    <div class="mb-5">' +
@@ -154,6 +171,8 @@ MianBa.interview = {
     MianBa.state._interviewEnded = false;
     MianBa.state.customPositionDesc = positionDesc || '';
     MianBa.state.interviewConfig = { position: position, difficulty: difficulty, questionCount: questionCount, positionDesc: positionDesc || '' };
+    // 消费掉匹配上下文（下次不会重复显示）
+    MianBa.state.matchContext = null;
     MianBa.state.messages = [];
     MianBa.state.answers = [];
     MianBa.state.questionIndex = 0;

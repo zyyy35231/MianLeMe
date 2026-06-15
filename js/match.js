@@ -157,8 +157,18 @@ MianBa.match = {
 
     var self = this;
     document.getElementById('btn-practice-weak').onclick = function() {
-      // 将差距作为弱点传入面试模块
+      // 将匹配结果完整传入面试模块
+      MianBa.state.matchContext = {
+        fromMatch: true,
+        gaps: result.gaps || [],
+        suggestions: result.suggestions || [],
+        matchScore: result.overallScore || 0,
+        dimensions: result.dimensions || {},
+        jdText: document.getElementById('jd-input') ? document.getElementById('jd-input').value.trim() : '',
+      };
+      // 同步弱点到面试
       MianBa.state.resumeWeaknesses = (result.gaps || []).concat(result.suggestions || []);
+      MianBa.ui.toast('已将薄弱项同步到面试，AI将针对性出题', 'success');
       MianBa.app.switchTab('interview');
     };
   },
