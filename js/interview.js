@@ -208,7 +208,7 @@ MianBa.interview = {
       '      <div class="flex items-center justify-between mt-3">' +
       '        <div class="flex gap-2">' +
       '          <button id="btn-submit" class="btn-primary text-sm">提交回答</button>' +
-      '          <span class="px-3 py-2 rounded-lg border border-slate-200 text-slate-400 text-xs cursor-default" title="语音输入受浏览器限制暂不可用，建议使用键盘输入">🎤 语音输入暂不可用</span>' +
+      '          <button id="btn-voice-hint" class="px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-medium transition flex items-center gap-1.5" title="语音输入提示">🎤 语音输入</button>' +
       '        </div>' +
       '        <div class="flex gap-3">' +
       '          <button id="btn-skip" class="text-sm text-slate-400 hover:text-slate-600">跳过此题</button>' +
@@ -232,7 +232,7 @@ MianBa.interview = {
     document.getElementById('btn-submit').onclick = function() { self.submitAnswer(); };
     document.getElementById('btn-skip').onclick = function() { self.skipQuestion(); };
     document.getElementById('btn-end').onclick = function() { self.endInterview(); };
-    // 语音输入暂不可用
+    document.getElementById('btn-voice-hint').onclick = function() { self._showVoiceHint(); };
     document.getElementById('btn-speak-q').onclick = function() { self._speakQuestion(); };
     document.getElementById('btn-toggle-history').onclick = function() { self._toggleHistory(); };
     document.getElementById('answer-input').onkeydown = function(e) {
@@ -479,30 +479,26 @@ MianBa.interview = {
     }
   },
 
-  // ===== 语音输入（实验性） =====
-  _voiceInput: function() {
-    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      MianBa.ui.toast('浏览器不支持语音识别（请使用Chrome）', 'error');
-      return;
-    }
-    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    var recognition = new SpeechRecognition();
-    recognition.lang = 'zh-CN';
-    recognition.interimResults = false;
-    recognition.continuous = false;
-    MianBa.ui.toast('正在聆听...', 'info');
-    recognition.onresult = function(event) {
-      var text = event.results[0][0].transcript;
-      var input = document.getElementById('answer-input');
-      if (input) {
-        input.value = input.value ? input.value + ' ' + text : text;
-      }
-      MianBa.ui.toast('语音识别完成', 'success');
-    };
-    recognition.onerror = function() {
-      MianBa.ui.toast('语音识别失败，请重试', 'error');
-    };
-    recognition.start();
+  // 语音输入提示（引导使用微信语音识别）
+  _showVoiceHint: function() {
+    MianBa.ui.modal(
+      '🎤 语音输入指南',
+      '<div class="text-sm text-slate-600 space-y-3">' +
+      '  <p>推荐使用<strong class="text-green-600">微信桌面版</strong>的全局语音识别功能，准确且免费：</p>' +
+      '  <div class="bg-slate-50 rounded-lg p-3 space-y-2">' +
+      '    <div class="flex items-start gap-2">' +
+      '      <span class="inline-flex items-center justify-center w-16 h-6 bg-slate-700 text-white text-[10px] font-mono rounded flex-shrink-0 mt-0.5">Ctrl+Win</span>' +
+      '      <span class="text-xs text-slate-500">按住说话，松开停止。适合边想边说的场景。</span>' +
+      '    </div>' +
+      '    <div class="flex items-start gap-2">' +
+      '      <span class="inline-flex items-center justify-center w-24 h-6 bg-slate-700 text-white text-[10px] font-mono rounded flex-shrink-0 mt-0.5">Ctrl+Shift+Win</span>' +
+      '      <span class="text-xs text-slate-500">按一次开始，再按一次结束。适合较长段落的语音输入。</span>' +
+      '    </div>' +
+      '  </div>' +
+      '  <p class="text-xs text-slate-400 mt-2">使用时确保微信已登录并在后台运行。将光标放在面试回答输入框中，按下快捷键开始语音识别，说完后语音结果会自动出现在微信输入框，复制后粘贴到这里即可。</p>' +
+      '</div>',
+      function() {}
+    );
   },
 
   // ===== 历史区展开/折叠 =====
