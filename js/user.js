@@ -95,13 +95,13 @@ MianBa.user = {
       var initials = user.name.charAt(0).toUpperCase();
       var planColor = user.plan === 'enterprise' ? 'bg-purple-500' : user.plan === 'pro' ? 'bg-amber-500' : 'bg-slate-400';
       container.innerHTML =
-        '<div class="flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-slate-700 rounded-lg transition" onclick="MianBa.app.switchTab(\'dashboard\')" title="点击进入个人中心">' +
+        '<div class="flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-slate-700 rounded-lg transition" onclick="MianBa.app.switchTab(\'dashboard\')" title="点击进入个人中心">' +
         '  <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">' + initials + '</div>' +
         '  <div class="flex-1 min-w-0">' +
-        '    <p class="text-sm text-white truncate">' + user.name + '</p>' +
+        '    <p class="text-sm text-white truncate leading-tight">' + user.name + '</p>' +
         '    <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium text-white ' + planColor + '">' + planConfig.name + '</span>' +
-        '    <span class="block text-[10px] text-slate-400 mt-0.5">个人中心 →</span>' +
         '  </div>' +
+        '  <span class="text-[11px] text-blue-300 flex-shrink-0">个人中心 →</span>' +
         '</div>';
     } else {
       container.innerHTML =
