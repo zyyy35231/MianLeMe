@@ -178,7 +178,7 @@ MianBa.interview = {
       '    <span class="text-sm font-medium text-slate-700">' + cfg.position + ' · ' + cfg.difficulty + '</span>' +
       '    <div class="flex-1 flex items-center gap-3">' +
       '      <div class="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">' +
-      '        <div id="interview-progress" class="progress-bar h-full bg-blue-500 rounded-full" style="width:' + (qi / cfg.questionCount * 100) + '%"></div>' +
+      '        <div id="interview-progress" class="progress-bar h-full bg-blue-500" style="width:' + (qi / cfg.questionCount * 100) + '%"></div>' +
       '      </div>' +
       '      <span class="text-sm font-medium text-slate-600 whitespace-nowrap">第<span id="q-display">-</span>/' + cfg.questionCount + '题</span>' +
       '    </div>' +
