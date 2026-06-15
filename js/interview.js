@@ -484,7 +484,7 @@ MianBa.interview = {
     MianBa.ui.modal(
       '🎤 语音输入指南',
       '<div class="text-sm text-slate-600 space-y-3">' +
-      '  <p>推荐使用<strong class="text-green-600">微信桌面版</strong>的全局语音识别功能，准确且免费：</p>' +
+      '  <p>推荐使用<strong class="text-green-600">微信桌面版</strong>的全局语音识别，准确且免费：</p>' +
       '  <div class="bg-slate-50 rounded-lg p-3 space-y-2">' +
       '    <div class="flex items-start gap-2">' +
       '      <span class="inline-flex items-center justify-center w-16 h-6 bg-slate-700 text-white text-[10px] font-mono rounded flex-shrink-0 mt-0.5">Ctrl+Win</span>' +
@@ -495,7 +495,10 @@ MianBa.interview = {
       '      <span class="text-xs text-slate-500">按一次开始，再按一次结束。适合较长段落的语音输入。</span>' +
       '    </div>' +
       '  </div>' +
-      '  <p class="text-xs text-slate-400 mt-2">使用时确保微信已登录并在后台运行。将光标放在面试回答输入框中，按下快捷键开始语音识别，说完后语音结果会自动出现在微信输入框，复制后粘贴到这里即可。</p>' +
+      '  <div class="bg-green-50 rounded-lg p-3 text-xs text-green-700">' +
+      '    微信语音识别<strong>全局生效</strong>：按下快捷键后，语音识别结果会<strong>自动填入当前光标所在位置</strong>，无需复制粘贴。使用时只需将光标放在面试回答输入框中，按下快捷键即可直接语音输入。' +
+      '  </div>' +
+      '  <p class="text-xs text-slate-400">确保微信已登录并在后台运行即可使用。</p>' +
       '</div>',
       function() {}
     );

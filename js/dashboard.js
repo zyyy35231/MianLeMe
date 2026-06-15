@@ -37,6 +37,7 @@ MianBa.dashboard = {
       '      <div class="text-right">' +
       '        <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm font-medium">' + planConfig.name + '</span>' +
       '        <br><button onclick="MianBa.app.switchTab(\'pricing\')" class="text-xs text-blue-500 hover:text-blue-600 mt-2">升级会员 →</button>' +
+      '        <br><button onclick="MianBa.user.logout()" class="text-xs text-slate-400 hover:text-red-500 mt-1">退出登录</button>' +
       '      </div>' +
       '    </div>' +
       '  </div>' +

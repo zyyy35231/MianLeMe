@@ -37,6 +37,14 @@ MianBa.user = {
     MianBa.ui.toast('欢迎，' + name + '！', 'success');
   },
 
+  // 退出登录
+  logout: function() {
+    MianBa.storage.remove(MianBa.Config.STORAGE_KEYS.USER);
+    MianBa.ui.toast('已退出登录', 'info');
+    MianBa.ui.renderSidebar(MianBa.state.currentTab);
+    MianBa.app.switchTab('home');
+  },
+
   // 升级plan
   upgradePlan: function(plan) {
     var user = this.getCurrent();
@@ -101,7 +109,8 @@ MianBa.user = {
         '    <p class="text-sm text-white truncate leading-tight">' + user.name + '</p>' +
         '    <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium text-white ' + planColor + '">' + planConfig.name + '</span>' +
         '  </div>' +
-        '  <span class="text-[11px] text-blue-300 flex-shrink-0">个人中心 →</span>' +
+        '  <span class="text-[11px] text-blue-300 flex-shrink-0 hover:text-white" onclick="event.stopPropagation();MianBa.app.switchTab(\'dashboard\')">个人中心 →</span>' +
+        '  <span class="text-[10px] text-slate-500 hover:text-red-400 flex-shrink-0 ml-1 cursor-pointer" title="退出登录" onclick="event.stopPropagation();MianBa.user.logout()">退出</span>' +
         '</div>';
     } else {
       container.innerHTML =

@@ -236,6 +236,21 @@ MianBa.report = {
     var cfg = MianBa.state.interviewConfig;
     var msgs = MianBa.state.messages || [];
 
+    // 统计有效回答和跳过数
+    var validCount = 0, skippedCount = 0;
+    answers.forEach(function(a) {
+      if (a.answer === '[跳过]') skippedCount++;
+      else validCount++;
+    });
+    var totalQuestions = MianBa.state.interviewConfig.questionCount || 5;
+    var completionRate = answers.length / totalQuestions;
+
+    // 完成率过低：直接用低分，不调 API
+    if (validCount < 2 || completionRate < 0.3) {
+      self._lowScoreReport(answers, cfg, msgs, validCount, skippedCount, totalQuestions, callback);
+      return;
+    }
+
     // 构建给AI的评估请求
     var qaText = answers.map(function(a, i) {
       return '【第' + (i + 1) + '题】\n问：' + (a.question || '') + '\n答：' + (a.answer || '');
@@ -397,6 +412,41 @@ MianBa.report = {
       rounds: rounds,
       weaknesses: weaknesses,
       suggestions: suggestions,
+    };
+
+    MianBa.storage.addHistory(report);
+    callback(report);
+  },
+
+  // 完成率过低时的低分报告
+  _lowScoreReport: function(answers, cfg, msgs, validCount, skippedCount, totalQuestions, callback) {
+    var rounds = [];
+    answers.forEach(function(a, i) {
+      rounds.push({
+        question: a.question || '第' + (i + 1) + '题',
+        answer: a.answer || '',
+        comment: a.answer === '[跳过]' ? '此题未作答。' : '面试提前结束，无法完整评估。',
+        starIssues: a.answer === '[跳过]' ? ['未作答'] : [],
+      });
+    });
+
+    var report = {
+      date: new Date().toISOString(),
+      position: cfg.position,
+      difficulty: cfg.difficulty,
+      score: Math.max(10, Math.round(validCount / totalQuestions * 30)),
+      dimensions: { content: 15, logic: 15, depth: 10, star: 10 },
+      rounds: rounds,
+      weaknesses: [
+        '仅完成 ' + validCount + '/' + totalQuestions + ' 题，面试完成率过低',
+        skippedCount > 0 ? '有 ' + skippedCount + ' 题被跳过' : null,
+        '面试过早结束，无法进行完整评估',
+      ].filter(Boolean),
+      suggestions: [
+        '建议至少完成 60% 以上的题目，才能获得准确的评估结果',
+        '每道题尽量回答，即使知道不多也可以尝试表达',
+        '面试是练习的过程，不用太紧张，多练几次会更好',
+      ],
     };
 
     MianBa.storage.addHistory(report);
