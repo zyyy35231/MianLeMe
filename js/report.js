@@ -61,7 +61,8 @@ MianBa.report = {
       '  </div>' +
       // 逐题回顾
       '  <div class="card p-6 mb-6">' +
-      '    <h3 class="text-lg font-semibold text-slate-800 mb-4">逐题回顾</h3>' +
+      '    <h3 class="text-lg font-semibold text-slate-800 mb-1">逐题回顾</h3>' +
+      '    <p class="text-xs text-slate-400 mb-4">点击每题标题展开，查看你的回答与 AI 点评</p>' +
       '    <div class="space-y-3">' +
       (report.rounds || []).map(function(round, i) {
         var qTitle = round.question;
