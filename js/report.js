@@ -21,6 +21,11 @@ MianBa.report = {
     container.innerHTML =
       '<div id="report-area" class="p-8">' +
       '  <h2 class="text-2xl font-bold text-slate-800 mb-6">面试报告</h2>' +
+      // STAR 说明条
+      '  <div class="flex items-start gap-2 p-3 bg-blue-50 rounded-lg mb-6 text-xs text-blue-700">' +
+      '    <i data-lucide="info" class="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5"></i>' +
+      '    <span><strong>STAR</strong> = <strong>S</strong>ituation（情境）+ <strong>T</strong>ask（任务）+ <strong>A</strong>ction（行动）+ <strong>R</strong>esult（结果），是面试回答的结构化框架，帮助面试官评估你的逻辑思维和问题解决能力。</span>' +
+      '  </div>' +
       // 岗位信息
       '  <div class="flex items-center gap-4 mb-6 text-sm text-slate-500">' +
       '    <span>岗位：' + (report.position || '未知') + '</span>' +
@@ -97,7 +102,7 @@ MianBa.report = {
       new Chart(ctx, {
         type: 'radar',
         data: {
-          labels: ['内容完整度', '表达逻辑', '专业深度', 'STAR结构'],
+          labels: ['内容完整度', '表达逻辑', '专业深度', 'STAR结构ⓘ'],
           datasets: [{
             data: [report.dimensions.content, report.dimensions.logic, report.dimensions.depth, report.dimensions.star],
             backgroundColor: 'rgba(59,130,246,0.15)',

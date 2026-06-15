@@ -10,6 +10,14 @@ MianBa.Config = {
     API_KEY: 'mb_apiKey',
     HISTORY: 'mb_history',
     LAST_REPORT: 'mb_lastReport',
+    USER: 'mb_user',
+    MATCH_COUNT: 'mb_matchCount',
+    MATCH_DATE: 'mb_matchDate',
+  },
+  PLANS: {
+    free: { name: '免费版', interviewLimit: 5, matchPerDay: 1, deepReport: false, enterprise: false },
+    pro: { name: 'Pro版', interviewLimit: 999, matchPerDay: 10, deepReport: true, enterprise: false },
+    enterprise: { name: '企业版', interviewLimit: 999, matchPerDay: 999, deepReport: true, enterprise: true },
   },
   POSITIONS: ['技术岗', '产品岗', '运营岗', '市场岗', '综合岗'],
   DIFFICULTIES: ['初级', '中级', '高级'],
@@ -127,5 +135,33 @@ MianBa.MockReport = {
     '在回答技术问题时多结合实际项目案例增加说服力',
     '回答结束后主动反问面试官，展现主动性',
     '练习用STAR法则结构化每个回答，确保四要素完整',
+  ],
+};
+
+// ===== 模拟岗位匹配结果 =====
+MianBa.MockMatchResult = {
+  overallScore: 68,
+  dimensions: { skills: 72, experience: 58, education: 80, comprehensive: 65 },
+  gaps: [
+    'JD要求"有TypeScript项目经验"，简历中未体现',
+    'JD要求"熟悉微服务架构"，简历中缺乏相关经验',
+    '工作经验要求3年以上，简历显示约1.5年',
+    'JD提到"带团队经验"，简历无管理经验描述',
+  ],
+  suggestions: [
+    '在简历中补充TypeScript相关的项目经验',
+    '学习微服务基础概念，至少能在面试中讨论',
+    '在现有项目中主动承担Tech Lead职责',
+    '准备一个"团队协作"的STAR案例，突出引领作用',
+  ],
+};
+
+// ===== 模拟企业HR数据 =====
+MianBa.MockEnterprise = {
+  stats: { positions: 12, candidates: 347, pending: 89 },
+  positions: [
+    { title: '前端开发工程师', candidates: 86, topScore: 92, topName: '李明', department: '技术部' },
+    { title: '产品经理', candidates: 124, topScore: 88, topName: '王芳', department: '产品部' },
+    { title: '数据分析师', candidates: 67, topScore: 85, topName: '陈静', department: '数据部' },
   ],
 };

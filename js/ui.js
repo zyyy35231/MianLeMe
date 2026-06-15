@@ -92,16 +92,35 @@ MianBa.ui = {
   },
 
   renderSidebar: function(activeTab) {
-    var tabs = [
+    // 用户区
+    var userArea = document.getElementById('sidebar-user-area');
+    if (userArea && MianBa.user) {
+      MianBa.user.renderUserArea();
+    }
+
+    // 主导航
+    var mainTabs = [
       { id: 'home', label: '首页', icon: 'home' },
       { id: 'resume', label: '简历分析', icon: 'file-text' },
       { id: 'interview', label: '模拟面试', icon: 'mic' },
       { id: 'report', label: '面试报告', icon: 'bar-chart-2' },
     ];
+    // 增值功能
+    var extraTabs = [
+      { id: 'match', label: '岗位匹配', icon: 'target' },
+      { id: 'pricing', label: '会员定价', icon: 'gem' },
+    ];
+    // 企业版Tab（仅Enterprise可见）
+    if (MianBa.user && MianBa.user.getPlan() === 'enterprise') {
+      extraTabs.push({ id: 'enterprise', label: '企业版', icon: 'building-2' });
+    }
+
     var nav = document.getElementById('nav-tabs');
     if (!nav) return;
     nav.innerHTML = '';
-    tabs.forEach(function(tab) {
+
+    // 渲染主功能
+    mainTabs.forEach(function(tab) {
       var isActive = tab.id === activeTab;
       var btn = document.createElement('button');
       btn.className = 'nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm ' +
@@ -110,6 +129,23 @@ MianBa.ui = {
       btn.onclick = function() { MianBa.app.switchTab(tab.id); };
       nav.appendChild(btn);
     });
+
+    // 分隔线
+    var divider = document.createElement('div');
+    divider.className = 'border-t border-slate-700 my-2';
+    nav.appendChild(divider);
+
+    // 渲染增值功能
+    extraTabs.forEach(function(tab) {
+      var isActive = tab.id === activeTab;
+      var btn = document.createElement('button');
+      btn.className = 'nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm ' +
+        (isActive ? 'active' : 'text-slate-300 hover:bg-slate-700');
+      btn.innerHTML = '<i data-lucide="' + tab.icon + '" class="w-4 h-4"></i>' + tab.label;
+      btn.onclick = function() { MianBa.app.switchTab(tab.id); };
+      nav.appendChild(btn);
+    });
+
     lucide.createIcons();
   },
 };

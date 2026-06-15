@@ -142,6 +142,14 @@ MianBa.interview = {
 
   // ===== 开始面试 =====
   start: function(position, difficulty, questionCount, positionDesc) {
+    // Free用户题数限制
+    var planConfig = MianBa.user.getPlanConfig();
+    var maxQuestions = planConfig.interviewLimit;
+    if (questionCount > maxQuestions) {
+      questionCount = maxQuestions;
+      MianBa.ui.toast('免费版限制 ' + maxQuestions + ' 题/次，升级 Pro 版解锁无限题数', 'info');
+    }
+
     MianBa.state.interviewInProgress = true;
     MianBa.state.customPositionDesc = positionDesc || '';
     MianBa.state.interviewConfig = { position: position, difficulty: difficulty, questionCount: questionCount, positionDesc: positionDesc || '' };

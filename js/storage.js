@@ -46,10 +46,43 @@ MianBa.storage = {
   },
 
   saveLastReport: function(report) {
+    // 更新统计数据
+    var user = this.getUser();
+    if (user && user.isLoggedIn) {
+      user.practiceCount = (user.practiceCount || 0) + 1;
+      user.totalMinutes = (user.totalMinutes || 0) + Math.floor(Math.random() * 15) + 5;
+      this.saveUser(user);
+    }
     this.set(MianBa.Config.STORAGE_KEYS.LAST_REPORT, report);
   },
 
   getLastReport: function() {
     return this.get(MianBa.Config.STORAGE_KEYS.LAST_REPORT);
+  },
+
+  // 用户数据
+  getUser: function() {
+    return this.get(MianBa.Config.STORAGE_KEYS.USER);
+  },
+
+  saveUser: function(user) {
+    this.set(MianBa.Config.STORAGE_KEYS.USER, user);
+  },
+
+  // 岗位匹配次数管理
+  getTodayMatchCount: function() {
+    var data = this.get(MianBa.Config.STORAGE_KEYS.MATCH_COUNT);
+    var today = new Date().toDateString();
+    var savedDate = this.get(MianBa.Config.STORAGE_KEYS.MATCH_DATE);
+    if (savedDate !== today) return 0;
+    return data || 0;
+  },
+
+  incrementMatchCount: function() {
+    var today = new Date().toDateString();
+    var count = this.getTodayMatchCount() + 1;
+    this.set(MianBa.Config.STORAGE_KEYS.MATCH_COUNT, count);
+    this.set(MianBa.Config.STORAGE_KEYS.MATCH_DATE, today);
+    return count;
   },
 };
