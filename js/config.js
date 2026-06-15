@@ -13,9 +13,6 @@ MianBa.Config = {
     USER: 'mb_user',
     MATCH_COUNT: 'mb_matchCount',
     MATCH_DATE: 'mb_matchDate',
-    EMAILJS_KEY: 'mb_emailjsKey',
-    EMAILJS_SERVICE: 'mb_emailjsService',
-    EMAILJS_TEMPLATE: 'mb_emailjsTemplate',
   },
   PLANS: {
     free: { name: '免费版', interviewLimit: 5, matchPerDay: 1, deepReport: false, enterprise: false },
