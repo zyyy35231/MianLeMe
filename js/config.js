@@ -17,7 +17,7 @@ MianBa.Config = {
   PLANS: {
     free: { name: '免费版', interviewLimit: 5, matchPerDay: 1, deepReport: false, enterprise: false },
     pro: { name: 'Pro版', interviewLimit: 999, matchPerDay: 10, deepReport: true, enterprise: false },
-    enterprise: { name: '企业版', interviewLimit: 999, matchPerDay: 999, deepReport: true, enterprise: true },
+    enterprise: { name: '旗舰版', interviewLimit: 999, matchPerDay: 999, deepReport: true, enterprise: true },
   },
   POSITIONS: ['技术岗', '产品岗', '运营岗', '市场岗', '综合岗'],
   DIFFICULTIES: ['初级', '中级', '高级'],

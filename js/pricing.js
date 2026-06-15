@@ -15,7 +15,7 @@ MianBa.pricing = {
         color: 'blue', recommended: true,
       },
       {
-        id: 'enterprise', name: '企业版', price: '¥99', period: '/月',
+        id: 'enterprise', name: '旗舰版', price: '¥99', period: '/月',
         features: ['全部Pro功能', '无限岗位匹配', '企业HR管理后台', '候选人筛选排名', '专属客服支持', '可定制面试题库'],
         disabled: [],
         color: 'purple', recommended: false,
@@ -79,7 +79,7 @@ MianBa.pricing = {
         '<div class="mb-3"><input id="ent-company" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="公司名称"></div>' +
         '<div class="mb-3"><input id="ent-phone" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="手机号码"></div>' +
         '<div class="mb-3"><textarea id="ent-need" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" rows="2" placeholder="需求描述"></textarea></div>';
-      MianBa.ui.modal('预约企业版演示', html, function() {
+      MianBa.ui.modal('预约旗舰版演示', html, function() {
         MianBa.user.upgradePlan('enterprise');
         MianBa.ui.toast('已收到您的预约，销售将尽快联系！', 'success');
         MianBa.ui.renderSidebar(MianBa.state.currentTab);

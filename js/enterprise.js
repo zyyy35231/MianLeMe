@@ -6,9 +6,9 @@ MianBa.enterprise = {
       container.innerHTML =
         '<div class="p-8 flex flex-col items-center justify-center" style="min-height:60vh;">' +
         '  <i data-lucide="building-2" class="w-16 h-16 text-slate-300 mb-4"></i>' +
-        '  <p class="text-slate-500 text-lg mb-2">企业版专属功能</p>' +
-        '  <p class="text-slate-400 text-sm mb-4">升级至企业版，解锁HR管理后台</p>' +
-        '  <button onclick="MianBa.app.switchTab(\'pricing\')" class="btn-accent">了解企业版 →</button>' +
+        '  <p class="text-slate-500 text-lg mb-2">旗舰版专属功能</p>' +
+        '  <p class="text-slate-400 text-sm mb-4">升级至旗舰版，解锁HR管理后台</p>' +
+        '  <button onclick="MianBa.app.switchTab(\'pricing\')" class="btn-accent">了解旗舰版 →</button>' +
         '</div>';
       lucide.createIcons();
       return;
