@@ -229,13 +229,88 @@ MianBa.report = {
     MianBa.ui.toast('文本报告已导出', 'success');
   },
 
-  // 生成报告（根据实际回答动态评分）
+  // 生成报告（优先AI评估，降级为规则引擎）
   generate: function(callback) {
     var answers = MianBa.state.answers || [];
     var cfg = MianBa.state.interviewConfig;
     var msgs = MianBa.state.messages || [];
 
-    // 收集AI在面试中的starIssues反馈
+    // 构建给AI的评估请求
+    var qaText = answers.map(function(a, i) {
+      return '【第' + (i + 1) + '题】\n问：' + (a.question || '') + '\n答：' + (a.answer || '');
+    }).join('\n\n');
+
+    var evalPrompt =
+      '你是一位资深面试评估专家。请根据以下面试问答记录，给出客观公正的评分。\n\n' +
+      '岗位：' + (cfg.position || '综合岗') + '\n' +
+      '难度：' + (cfg.difficulty || '中级') + '\n\n' +
+      qaText + '\n\n' +
+      '请严格返回以下JSON格式（不要markdown代码块）：\n' +
+      '{\n' +
+      '  "score": 0-100（综合得分，客观公正，65-90之间为佳）,\n' +
+      '  "dimensions": {\n' +
+      '    "content": 0-100（内容完整度：是否充分展开、有具体细节）,\n' +
+      '    "logic": 0-100（表达逻辑：结构是否清晰、有层次）,\n' +
+      '    "depth": 0-100（专业深度：是否体现专业理解）,\n' +
+      '    "star": 0-100（STAR结构：Situation-Task-Action-Result完整性）\n' +
+      '  },\n' +
+      '  "rounds": [\n' +
+      answers.map(function() {
+        return '    {"question":"原题","comment":"20字以内的简短点评","starIssues":["STAR问题1"]}';
+      }).join(',\n') + '\n' +
+      '  ],\n' +
+      '  "weaknesses": ["整体薄弱项1", "整体薄弱项2"],\n' +
+      '  "suggestions": ["针对性提升建议1", "建议2", "建议3"]\n' +
+      '}';
+
+    var self = this;
+
+    // 尝试API评估
+    MianBa.api._call(evalPrompt, '请评估面试表现', function(err, rawResult) {
+      if (!err && rawResult) {
+        try {
+          var clean = rawResult.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+          var aiReport = JSON.parse(clean);
+
+          // 用AI返回的rounds匹配实际题目
+          var aiRounds = aiReport.rounds || [];
+          var rounds = [];
+          answers.forEach(function(a, i) {
+            var aiRound = aiRounds[i] || {};
+            rounds.push({
+              question: a.question || '第' + (i + 1) + '题',
+              answer: a.answer || '',
+              comment: aiRound.comment || '',
+              starIssues: aiRound.starIssues || [],
+            });
+          });
+
+          var report = {
+            date: new Date().toISOString(),
+            position: cfg.position,
+            difficulty: cfg.difficulty,
+            score: aiReport.score || 76,
+            dimensions: aiReport.dimensions || { content: 75, logic: 75, depth: 75, star: 75 },
+            rounds: rounds,
+            weaknesses: aiReport.weaknesses || [],
+            suggestions: aiReport.suggestions || [],
+          };
+
+          MianBa.storage.addHistory(report);
+          callback(report);
+          return;
+        } catch (e) {
+          console.warn('AI评估JSON解析失败，使用规则评分');
+        }
+      }
+
+      // 降级：规则引擎评分
+      self._heuristicScore(answers, cfg, msgs, callback);
+    });
+  },
+
+  // 规则引擎评分（API不可用时降级使用）
+  _heuristicScore: function(answers, cfg, msgs, callback) {
     var allStarIssues = [];
     msgs.forEach(function(m) {
       if (m.role === 'assistant' && m._starIssues && m._starIssues.length) {
@@ -243,7 +318,6 @@ MianBa.report = {
       }
     });
 
-    // 分析每条回答
     var totalLen = 0, hasNumber = 0, skipped = 0, validAnswers = 0;
     answers.forEach(function(a) {
       if (a.answer === '[跳过]') { skipped++; return; }
@@ -255,7 +329,6 @@ MianBa.report = {
     var avgLen = validAnswers > 0 ? totalLen / validAnswers : 0;
     var skipPenalty = answers.length > 0 ? skipped / answers.length : 0;
 
-    // 动态计算各维度得分
     var contentScore = Math.min(95, Math.max(40, Math.round(
       50 + (avgLen > 120 ? 45 : avgLen > 60 ? 30 : avgLen > 20 ? 15 : 5) - skipPenalty * 30
     )));
@@ -269,34 +342,29 @@ MianBa.report = {
       75 - allStarIssues.length * 8 - skipPenalty * 25
     )));
 
-    // 综合得分 = 各维度加权平均 + 小幅随机
     var overall = Math.round(
       (contentScore * 0.3 + logicScore * 0.25 + depthScore * 0.2 + starScore * 0.25)
-      + (Math.random() * 6 - 3) // ±3 随机波动
+      + (Math.random() * 6 - 3)
     );
     overall = Math.min(95, Math.max(45, overall));
 
-    // 生成逐题点评
     var rounds = [];
     answers.forEach(function(a, i) {
-      var comment = '';
-      var issues = [];
+      var comment = '', issues = [];
       if (a.answer === '[跳过]') {
-        comment = '此题未作答，建议在后续练习中尝试回答。';
+        comment = '此题未作答。';
         issues = ['未作答'];
+      } else if (a.answer.length < 30) {
+        comment = '回答简短，建议展开细节。';
+        issues.push('回答过短');
+      } else if (a.answer.length < 80) {
+        comment = '可补充更多量化数据或具体行动步骤。';
+        if (!(/\d/.test(a.answer))) issues.push('缺少量化数据');
+      } else if (!(/\d/.test(a.answer))) {
+        comment = '回答详细但缺乏数据支撑。';
+        issues.push('缺少量化数据');
       } else {
-        if (a.answer.length < 30) {
-          comment = '回答较为简短，建议展开细节，用具体案例支撑观点。';
-          issues.push('回答过短');
-        } else if (a.answer.length < 80) {
-          comment = '回答有基本内容，但可以补充更多量化数据或具体行动步骤。';
-          if (!(/\d/.test(a.answer))) issues.push('缺少量化数据');
-        } else if (!(/\d/.test(a.answer))) {
-          comment = '回答详细，但缺乏量化数据支撑。建议用具体数字增强说服力。';
-          issues.push('缺少量化数据');
-        } else {
-          comment = '回答结构完整，有具体数据支撑。继续保持！';
-        }
+        comment = '结构完整，有数据支撑。';
       }
       rounds.push({
         question: a.question || '第' + (i + 1) + '题',
@@ -306,22 +374,18 @@ MianBa.report = {
       });
     });
 
-    // 动态薄弱项
     var weaknesses = [];
-    if (skipPenalty > 0) weaknesses.push('有' + skipped + '题未作答，需要提升临场应变能力');
-    if (avgLen < 30) weaknesses.push('回答普遍偏短，缺乏细节展开');
-    if (avgLen < 80 && avgLen >= 30) weaknesses.push('回答可以更详细，建议用STAR法则展开');
-    if (hasNumber < validAnswers * 0.5) weaknesses.push('量化数据意识较弱，回答缺乏数字支撑');
-    if (allStarIssues.length > 0) weaknesses.push('部分回答STAR结构不完整：' + allStarIssues.slice(0, 2).join('、'));
-    if (weaknesses.length === 0) weaknesses.push('整体表现不错，继续保持练习！');
+    if (skipPenalty > 0) weaknesses.push('有' + skipped + '题未作答');
+    if (avgLen < 30) weaknesses.push('回答普遍偏短');
+    if (avgLen < 80 && avgLen >= 30) weaknesses.push('回答可更详细，建议用STAR法则展开');
+    if (hasNumber < validAnswers * 0.5) weaknesses.push('量化数据意识较弱');
+    if (weaknesses.length === 0) weaknesses.push('整体表现不错！');
 
-    // 动态建议
     var suggestions = [
-      '每次回答尽量在80字以上，用完整STAR结构组织',
-      '准备3-5个量化案例（如"提升XX%""节省XX天"），面试时灵活调用',
+      '每次回答尽量80字以上，用完整STAR结构组织',
+      '准备3-5个量化案例，面试时灵活调用',
     ];
-    if (hasNumber < validAnswers * 0.3) suggestions.push('刻意练习加入数据：每个项目描述至少配一个数字');
-    if (skipped > 0) suggestions.push('遇到不会的题可以说"这方面我了解不多，但我可以谈谈相关的XX经验"');
+    if (skipped > 0) suggestions.push('遇到不会的题可以说"这方面了解不多，但可以谈谈相关的XX经验"');
 
     var report = {
       date: new Date().toISOString(),

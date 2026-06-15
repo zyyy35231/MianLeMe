@@ -412,7 +412,17 @@ MianBa.interview = {
   endInterview: function() {
     clearInterval(MianBa.state.timerInterval);
     MianBa.state.interviewInProgress = false;
-    MianBa.ui.toast('面试结束，正在生成报告...', 'info');
+
+    // 显示等待画面
+    var container = document.getElementById('content-area');
+    if (container) {
+      container.innerHTML =
+        '<div class="flex flex-col items-center justify-center" style="min-height:60vh;">' +
+        '  <div class="w-10 h-10 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mb-4"></div>' +
+        '  <p class="text-slate-600 font-medium mb-1">AI 正在评估你的面试表现...</p>' +
+        '  <p class="text-slate-400 text-sm">正在分析每一道题的回答质量，请稍候</p>' +
+        '</div>';
+    }
 
     MianBa.report.generate(function(report) {
       MianBa.state.reportData = report;
