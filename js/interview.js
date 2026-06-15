@@ -348,12 +348,22 @@ MianBa.interview = {
     var qText = document.getElementById('question-text');
     if (qText) qText.textContent = '正在生成问题...';
 
+    // 收集已问过的非追问题目，避免重复
+    var askedQuestions = [];
+    MianBa.state.messages.forEach(function(m) {
+      if (m.role === 'assistant' && !m._wasFollowUp && m.content) {
+        // 取前50字作为题目摘要
+        askedQuestions.push(m.content.length > 50 ? m.content.substring(0, 50) + '...' : m.content);
+      }
+    });
+
     MianBa.api.interviewReply(
       MianBa.state.messages,
       MianBa.state.interviewConfig.position,
       MianBa.state.interviewConfig.difficulty,
       MianBa.state.resumeWeaknesses,
       MianBa.state.interviewConfig.positionDesc || '',
+      askedQuestions,
       function(err, reply) {
         var submitBtn = document.getElementById('btn-submit');
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '提交回答'; }

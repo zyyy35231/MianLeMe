@@ -67,7 +67,7 @@ MianBa.api = {
   },
 
   // 构建面试System Prompt
-  _buildInterviewPrompt: function(position, difficulty, weaknesses, positionDesc) {
+  _buildInterviewPrompt: function(position, difficulty, weaknesses, positionDesc, askedQuestions) {
     var weakStr = '';
     if (weaknesses && weaknesses.length > 0) {
       weakStr = '用户简历存在以下弱点，请针对性出题：\n' + weaknesses.map(function(w, i) { return (i + 1) + '. ' + w; }).join('\n') + '\n\n';
@@ -78,11 +78,18 @@ MianBa.api = {
       descStr = '【岗位详细要求】\n' + positionDesc + '\n\n请严格按照上述岗位要求出题，考察候选人是否满足这些具体条件。\n\n';
     }
 
+    var askedStr = '';
+    if (askedQuestions && askedQuestions.length > 0) {
+      askedStr = '【已提问过的题目，请勿重复】\n' + askedQuestions.map(function(q, i) { return (i + 1) + '. ' + q; }).join('\n') + '\n\n';
+    }
+
     return '你是【' + position + '】的校招面试官，当前难度为【' + difficulty + '】。请用中文进行面试。\n\n' +
       descStr +
       '## 出题规则\n' +
       '- 第1题固定为"请做自我介绍"\n' +
       weakStr +
+      askedStr +
+      '- 每道题必须是不同的考察方向，禁止提出与已问题目相似或相同的问题\n' +
       '- 初级难度：侧重基础概念、行为面试题、学习能力考察\n' +
       '- 中级难度：侧重项目深挖、场景分析题、技术方案设计\n' +
       '- 高级难度：侧重系统设计、架构思维、压力题和综合能力\n\n' +
@@ -134,8 +141,8 @@ MianBa.api = {
   },
 
   // 面试对话
-  interviewReply: function(messages, position, difficulty, weaknesses, positionDesc, callback) {
-    var systemPrompt = this._buildInterviewPrompt(position, difficulty, weaknesses, positionDesc);
+  interviewReply: function(messages, position, difficulty, weaknesses, positionDesc, askedQuestions, callback) {
+    var systemPrompt = this._buildInterviewPrompt(position, difficulty, weaknesses, positionDesc, askedQuestions);
 
     // 只发最近5条消息节省token
     var recent = messages.slice(-5);

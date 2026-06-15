@@ -107,8 +107,8 @@ MianBa.MockResumeResult = {
 
 // ===== 模拟面试报告 =====
 MianBa.MockReport = {
-  score: 76,
-  dimensions: { content: 78, logic: 72, depth: 70, star: 82 },
+  score: 82,
+  dimensions: { content: 82, logic: 80, depth: 78, star: 85 },
   rounds: [
     {
       question: '请做一个简单的自我介绍。',
