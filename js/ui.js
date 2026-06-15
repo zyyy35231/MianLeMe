@@ -43,24 +43,39 @@ MianBa.ui = {
 
   showApiKeyModal: function() {
     var currentKey = MianBa.storage.getApiKey();
+    var emailKey = localStorage.getItem(MianBa.Config.STORAGE_KEYS.EMAILJS_KEY) || '';
+    var emailService = localStorage.getItem(MianBa.Config.STORAGE_KEYS.EMAILJS_SERVICE) || '';
+    var emailTemplate = localStorage.getItem(MianBa.Config.STORAGE_KEYS.EMAILJS_TEMPLATE) || '';
 
     var html =
-      '<div class="mb-3">' +
+      '<div class="mb-4 pb-4 border-b border-slate-100">' +
       '  <label class="block text-sm font-medium text-slate-700 mb-1">DeepSeek API Key</label>' +
       '  <input id="api-key-input" type="password" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value="' + (currentKey || '') + '" placeholder="sk-...">' +
+      '  <div id="api-test-result" class="text-xs mt-1"></div>' +
+      '  <button id="btn-test-connection" class="mt-2 w-full px-4 py-2 rounded-lg border border-blue-300 text-blue-600 hover:bg-blue-50 text-sm">测试 DeepSeek 连接</button>' +
       '</div>' +
-      '<div id="api-test-result" class="text-xs mb-3"></div>' +
-      '<button id="btn-test-connection" class="w-full px-4 py-2 rounded-lg border border-blue-300 text-blue-600 hover:bg-blue-50 text-sm mb-3">测试连接</button>';
+      '<p class="text-sm font-medium text-slate-700 mb-2">📧 EmailJS 邮件服务</p>' +
+      '<p class="text-xs text-slate-400 mb-2">发送面试报告到邮箱，免费额度 200封/月</p>' +
+      '<input id="emailjs-key" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2" value="' + emailKey + '" placeholder="Public Key（从 EmailJS Account 获取）">' +
+      '<input id="emailjs-service" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2" value="' + emailService + '" placeholder="Service ID（从 Email Services 获取）">' +
+      '<input id="emailjs-template" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value="' + emailTemplate + '" placeholder="Template ID（从 Email Templates 获取）">' +
+      '<p class="text-xs text-slate-400 mt-1">注册地址：<a href="https://www.emailjs.com" target="_blank" class="text-blue-500 underline">emailjs.com</a>，创建模板时参数名用 <code class="bg-slate-100 px-1 rounded">to_email</code>、<code class="bg-slate-100 px-1 rounded">subject</code>、<code class="bg-slate-100 px-1 rounded">html_body</code></p>';
 
-    var overlay = MianBa.ui.modal('设置 API Key', html, function(overlay) {
+    var overlay = MianBa.ui.modal('⚙️ 设置', html, function(overlay) {
       var input = overlay.querySelector('#api-key-input');
       var newKey = input.value.trim();
       MianBa.storage.setApiKey(newKey);
       MianBa.state.apiKey = newKey;
-      if (newKey) {
-        MianBa.ui.toast('API Key 已保存', 'success');
-      } else {
-        MianBa.ui.toast('API Key 已清除', 'info');
+
+      var ek = overlay.querySelector('#emailjs-key').value.trim();
+      localStorage.setItem(MianBa.Config.STORAGE_KEYS.EMAILJS_KEY, ek);
+      var es = overlay.querySelector('#emailjs-service').value.trim();
+      localStorage.setItem(MianBa.Config.STORAGE_KEYS.EMAILJS_SERVICE, es);
+      var et = overlay.querySelector('#emailjs-template').value.trim();
+      localStorage.setItem(MianBa.Config.STORAGE_KEYS.EMAILJS_TEMPLATE, et);
+
+      if (newKey || ek) {
+        MianBa.ui.toast('设置已保存', 'success');
       }
     });
 
