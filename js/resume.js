@@ -23,6 +23,10 @@ MianBa.resume = {
       '    <div class="card-body-inner">' +
       '      <label class="block text-sm font-medium text-slate-700 mb-2">简历文本 <span class="text-slate-400 font-normal">（上传文件自动填入，也可直接粘贴）</span></label>' +
       '      <textarea id="resume-input" class="w-full border border-slate-300 rounded-lg p-4 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" rows="8" placeholder="粘贴你的简历文本到这里...&#10;&#10;例如：&#10;教育背景：XX大学 计算机科学 本科&#10;实习经历：XX公司 前端开发实习生&#10;项目经历：...&#10;技能：Python, React, SQL..."></textarea>' +
+      '      <div class="mt-3">' +
+      '        <label class="block text-sm font-medium text-slate-700 mb-1">岗位描述 <span class="text-slate-400 font-normal">（可选，粘贴JD后AI将进行匹配分析）</span></label>' +
+      '        <textarea id="job-desc-input" class="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none" rows="3" placeholder="粘贴目标岗位的职位描述（JD），AI将分析你的简历与该岗位的匹配度...&#10;&#10;留空则进行通用简历诊断（完整性/专业性/亮点/匹配度）"></textarea>' +
+      '      </div>' +
       '      <div class="mt-4 flex gap-4">' +
       '        <input id="position-input" class="flex-1 border border-slate-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="目标岗位名称，如：前端开发工程师">' +
       '        <button id="btn-analyze" class="btn-primary">开始分析</button>' +
@@ -159,7 +163,11 @@ MianBa.resume = {
   analyze: function() {
     var resumeText = document.getElementById('resume-input').value.trim();
     var position = document.getElementById('position-input').value.trim() || '综合岗';
+    var jobDesc = document.getElementById('job-desc-input') ? document.getElementById('job-desc-input').value.trim() : '';
     if (!resumeText) { MianBa.ui.toast('请先粘贴简历内容或上传文件', 'error'); return; }
+
+    // 存储简历文本供匹配页复用
+    MianBa.state.lastResumeText = resumeText;
 
     // 折叠输入区域
     var inputCard = document.getElementById('resume-input-card');
@@ -176,7 +184,7 @@ MianBa.resume = {
     MianBa.ui.showLoading(resultDiv, 'AI正在分析简历...');
 
     var self = this;
-    MianBa.api.analyzeResume(resumeText, position, function(err, result) {
+    MianBa.api.analyzeResume(resumeText, position, jobDesc, function(err, result) {
       btn.disabled = false;
       btn.textContent = '开始分析';
       if (err) { MianBa.ui.toast('分析失败', 'error'); return; }

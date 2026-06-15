@@ -151,6 +151,7 @@ MianBa.interview = {
     }
 
     MianBa.state.interviewInProgress = true;
+    MianBa.state._interviewEnded = false;
     MianBa.state.customPositionDesc = positionDesc || '';
     MianBa.state.interviewConfig = { position: position, difficulty: difficulty, questionCount: questionCount, positionDesc: positionDesc || '' };
     MianBa.state.messages = [];
@@ -365,6 +366,9 @@ MianBa.interview = {
       MianBa.state.interviewConfig.positionDesc || '',
       askedQuestions,
       function(err, reply) {
+        // 面试已结束，不再操作DOM
+        if (MianBa.state._interviewEnded) return;
+
         var submitBtn = document.getElementById('btn-submit');
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '提交回答'; }
 
@@ -412,6 +416,9 @@ MianBa.interview = {
   endInterview: function() {
     clearInterval(MianBa.state.timerInterval);
     MianBa.state.interviewInProgress = false;
+
+    // 标记已结束，防止 pending 的 _sendToAI 回调继续操作 DOM
+    MianBa.state._interviewEnded = true;
 
     // 显示等待画面
     var container = document.getElementById('content-area');

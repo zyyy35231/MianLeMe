@@ -110,7 +110,12 @@ MianBa.api = {
   },
 
   // 分析简历
-  analyzeResume: function(resumeText, position, callback) {
+  analyzeResume: function(resumeText, position, jobDesc, callback) {
+    var jdSection = '';
+    if (jobDesc) {
+      jdSection = '【目标岗位JD】\n' + jobDesc + '\n\n请将简历与该JD进行匹配分析，评估候选人与该岗位的契合度，指出简历中缺少的JD要求。\n\n';
+    }
+
     var systemPrompt =
       '你是资深HR。请分析以下简历，并只返回JSON格式（不要markdown代码块标记）：\n' +
       '{\n' +
@@ -118,7 +123,9 @@ MianBa.api = {
       '  "weaknesses":["弱点1","弱点2","弱点3","弱点4"],\n' +
       '  "suggestions":["建议1","建议2","建议3","建议4"]\n' +
       '}\n' +
-      '评分说明：completeness=信息完整性, professionalism=专业程度, highlight=亮点突出度, match=岗位匹配度。\n' +
+      jdSection +
+      '评分说明：completeness=信息完整性, professionalism=专业程度, highlight=亮点突出度, match=与目标岗位的匹配度。\n' +
+      (jobDesc ? '重点评估简历是否覆盖JD中的关键要求，指出遗漏的技能和经验。' : '') +
       '目标岗位：' + position + '。';
 
     this._call(systemPrompt, resumeText, function(err, result) {

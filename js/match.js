@@ -34,6 +34,17 @@ MianBa.match = {
       '</div>';
 
     lucide.createIcons();
+
+    // 从简历分析页复用简历文本
+    var lastResume = MianBa.state.lastResumeText;
+    if (lastResume) {
+      var matchResume = document.getElementById('match-resume-input');
+      if (matchResume && !matchResume.value.trim()) {
+        matchResume.value = lastResume;
+        MianBa.ui.toast('已自动填入简历分析页的简历内容', 'info');
+      }
+    }
+
     document.getElementById('btn-match').onclick = function() { self.analyze(); };
   },
 
