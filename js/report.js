@@ -229,44 +229,109 @@ MianBa.report = {
     MianBa.ui.toast('文本报告已导出', 'success');
   },
 
-  // 生成报告
+  // 生成报告（根据实际回答动态评分）
   generate: function(callback) {
     var answers = MianBa.state.answers || [];
     var cfg = MianBa.state.interviewConfig;
+    var msgs = MianBa.state.messages || [];
 
-    // 深拷贝模拟报告
-    var mockReport = JSON.parse(JSON.stringify(MianBa.MockReport));
+    // 收集AI在面试中的starIssues反馈
+    var allStarIssues = [];
+    msgs.forEach(function(m) {
+      if (m.role === 'assistant' && m._starIssues && m._starIssues.length) {
+        allStarIssues = allStarIssues.concat(m._starIssues);
+      }
+    });
 
-    // 用真实答案替换模拟数据
+    // 分析每条回答
+    var totalLen = 0, hasNumber = 0, skipped = 0, validAnswers = 0;
+    answers.forEach(function(a) {
+      if (a.answer === '[跳过]') { skipped++; return; }
+      validAnswers++;
+      totalLen += a.answer.length;
+      if (/\d+/.test(a.answer)) hasNumber++;
+    });
+
+    var avgLen = validAnswers > 0 ? totalLen / validAnswers : 0;
+    var skipPenalty = answers.length > 0 ? skipped / answers.length : 0;
+
+    // 动态计算各维度得分
+    var contentScore = Math.min(95, Math.max(40, Math.round(
+      50 + (avgLen > 120 ? 45 : avgLen > 60 ? 30 : avgLen > 20 ? 15 : 5) - skipPenalty * 30
+    )));
+    var logicScore = Math.min(95, Math.max(40, Math.round(
+      50 + (hasNumber / Math.max(validAnswers, 1)) * 40 - skipPenalty * 25
+    )));
+    var depthScore = Math.min(95, Math.max(40, Math.round(
+      50 + (avgLen > 150 ? 40 : avgLen > 80 ? 25 : avgLen > 30 ? 10 : 0) - skipPenalty * 20
+    )));
+    var starScore = Math.min(95, Math.max(40, Math.round(
+      75 - allStarIssues.length * 8 - skipPenalty * 25
+    )));
+
+    // 综合得分 = 各维度加权平均 + 小幅随机
+    var overall = Math.round(
+      (contentScore * 0.3 + logicScore * 0.25 + depthScore * 0.2 + starScore * 0.25)
+      + (Math.random() * 6 - 3) // ±3 随机波动
+    );
+    overall = Math.min(95, Math.max(45, overall));
+
+    // 生成逐题点评
     var rounds = [];
-    var maxRounds = Math.min(answers.length, mockReport.rounds.length);
-    for (var i = 0; i < maxRounds; i++) {
+    answers.forEach(function(a, i) {
+      var comment = '';
+      var issues = [];
+      if (a.answer === '[跳过]') {
+        comment = '此题未作答，建议在后续练习中尝试回答。';
+        issues = ['未作答'];
+      } else {
+        if (a.answer.length < 30) {
+          comment = '回答较为简短，建议展开细节，用具体案例支撑观点。';
+          issues.push('回答过短');
+        } else if (a.answer.length < 80) {
+          comment = '回答有基本内容，但可以补充更多量化数据或具体行动步骤。';
+          if (!(/\d/.test(a.answer))) issues.push('缺少量化数据');
+        } else if (!(/\d/.test(a.answer))) {
+          comment = '回答详细，但缺乏量化数据支撑。建议用具体数字增强说服力。';
+          issues.push('缺少量化数据');
+        } else {
+          comment = '回答结构完整，有具体数据支撑。继续保持！';
+        }
+      }
       rounds.push({
-        question: answers[i].question || mockReport.rounds[i].question,
-        answer: answers[i].answer || '',
-        comment: mockReport.rounds[i].comment || '',
-        starIssues: mockReport.rounds[i].starIssues || [],
+        question: a.question || '第' + (i + 1) + '题',
+        answer: a.answer || '',
+        comment: comment,
+        starIssues: issues,
       });
-    }
-    // 补充超出模拟数据的答案
-    for (var j = maxRounds; j < answers.length; j++) {
-      rounds.push({
-        question: answers[j].question,
-        answer: answers[j].answer,
-        comment: '请继续练习以获取更全面的AI点评',
-        starIssues: [],
-      });
-    }
+    });
+
+    // 动态薄弱项
+    var weaknesses = [];
+    if (skipPenalty > 0) weaknesses.push('有' + skipped + '题未作答，需要提升临场应变能力');
+    if (avgLen < 30) weaknesses.push('回答普遍偏短，缺乏细节展开');
+    if (avgLen < 80 && avgLen >= 30) weaknesses.push('回答可以更详细，建议用STAR法则展开');
+    if (hasNumber < validAnswers * 0.5) weaknesses.push('量化数据意识较弱，回答缺乏数字支撑');
+    if (allStarIssues.length > 0) weaknesses.push('部分回答STAR结构不完整：' + allStarIssues.slice(0, 2).join('、'));
+    if (weaknesses.length === 0) weaknesses.push('整体表现不错，继续保持练习！');
+
+    // 动态建议
+    var suggestions = [
+      '每次回答尽量在80字以上，用完整STAR结构组织',
+      '准备3-5个量化案例（如"提升XX%""节省XX天"），面试时灵活调用',
+    ];
+    if (hasNumber < validAnswers * 0.3) suggestions.push('刻意练习加入数据：每个项目描述至少配一个数字');
+    if (skipped > 0) suggestions.push('遇到不会的题可以说"这方面我了解不多，但我可以谈谈相关的XX经验"');
 
     var report = {
       date: new Date().toISOString(),
       position: cfg.position,
       difficulty: cfg.difficulty,
-      score: mockReport.score,
-      dimensions: mockReport.dimensions,
+      score: overall,
+      dimensions: { content: contentScore, logic: logicScore, depth: depthScore, star: starScore },
       rounds: rounds,
-      weaknesses: mockReport.weaknesses,
-      suggestions: mockReport.suggestions,
+      weaknesses: weaknesses,
+      suggestions: suggestions,
     };
 
     MianBa.storage.addHistory(report);

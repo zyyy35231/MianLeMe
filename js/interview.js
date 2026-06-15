@@ -379,6 +379,7 @@ MianBa.interview = {
           role: 'assistant', content: reply.reply,
           _wasFollowUp: reply.followUp || false,
           _questionIndex: MianBa.state.questionIndex,
+          _starIssues: reply.starIssues || [],
         });
 
         self._updateProgress();
