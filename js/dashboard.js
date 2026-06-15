@@ -35,7 +35,8 @@ MianBa.dashboard = {
       '        <p class="text-xs text-slate-400 mt-1">加入于 ' + (user.joinDate || '未知') + '</p>' +
       '      </div>' +
       '      <div class="text-right">' +
-      '        <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm font-medium">' + planConfig.name + '</span>' +
+      '        <button onclick="MianBa.user.sendReportEmail()" class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-xs text-slate-600 transition mb-2" title="发送最新报告到你的邮箱">📧 发送报告到邮箱</button>' +
+      '        <br><span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm font-medium">' + planConfig.name + '</span>' +
       '        <br><button onclick="MianBa.app.switchTab(\'pricing\')" class="text-xs text-blue-500 hover:text-blue-600 mt-2">升级会员 →</button>' +
       '        <br><button onclick="MianBa.user.logout()" class="text-xs text-slate-400 hover:text-red-500 mt-1">退出登录</button>' +
       '      </div>' +

@@ -37,6 +37,114 @@ MianBa.user = {
     MianBa.ui.toast('欢迎，' + name + '！', 'success');
   },
 
+  // 发送报告邮件
+  sendReportEmail: function() {
+    var user = this.getCurrent();
+    if (!user || !user.email) {
+      MianBa.ui.toast('请先在个人中心查看邮箱信息', 'error');
+      return;
+    }
+
+    var report = MianBa.storage.getLastReport();
+    if (!report) {
+      MianBa.ui.toast('还没有面试报告', 'error');
+      return;
+    }
+
+    // 检查EmailJS配置
+    var publicKey = localStorage.getItem(MianBa.Config.STORAGE_KEYS.EMAILJS_KEY);
+    var serviceId = localStorage.getItem(MianBa.Config.STORAGE_KEYS.EMAILJS_SERVICE);
+    var templateId = localStorage.getItem(MianBa.Config.STORAGE_KEYS.EMAILJS_TEMPLATE);
+
+    // 构建HTML邮件
+    var scoreColor = report.score >= 80 ? '#10B981' : report.score >= 60 ? '#F59E0B' : '#EF4444';
+    var roundsHtml = (report.rounds || []).map(function(r, i) {
+      var starBadges = (r.starIssues || []).map(function(s) {
+        return '<span style="background:#FFF7ED;color:#EA580C;padding:2px 6px;border-radius:4px;font-size:11px;margin:2px">' + s + '</span>';
+      }).join('');
+      return '<tr><td style="padding:8px 0;border-bottom:1px solid #eee"><strong>Q' + (i + 1) + '：</strong>' + (r.question || '') + '</td></tr>' +
+        '<tr><td style="padding:4px 0 8px 16px;color:#64748B;border-bottom:1px solid #eee">A：' + (r.answer || '') + '</td></tr>' +
+        '<tr><td style="padding:4px 0 12px 16px;color:#3B82F6;font-size:13px">点评：' + (r.comment || '') + ' ' + starBadges + '</td></tr>';
+    }).join('');
+
+    var weaknessesHtml = (report.weaknesses || []).map(function(w) {
+      return '<span style="background:#FEE2E2;color:#DC2626;padding:3px 8px;border-radius:12px;font-size:12px;margin:2px;display:inline-block">' + w + '</span>';
+    }).join(' ');
+
+    var suggestionsHtml = (report.suggestions || []).map(function(s, i) {
+      return '<li style="margin-bottom:4px;color:#374151">' + s + '</li>';
+    }).join('');
+
+    var htmlBody =
+      '<div style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif">' +
+      '  <div style="background:linear-gradient(135deg,#2563EB,#1D4ED8);color:white;padding:24px;border-radius:12px 12px 0 0;text-align:center">' +
+      '    <h1 style="margin:0 0 4px;font-size:22px">面了么 AI 面试报告</h1>' +
+      '    <p style="margin:0;opacity:0.85;font-size:14px">每一次模拟，都离Offer更近</p>' +
+      '  </div>' +
+      '  <div style="background:white;padding:24px;border-left:1px solid #E2E8F0;border-right:1px solid #E2E8F0">' +
+      '    <p style="color:#64748B;font-size:13px;margin:0 0 16px">' + (user.name || '用户') + '，你好！以下是你的面试报告摘要。</p>' +
+      '    <div style="text-align:center;padding:20px;background:#F8FAFC;border-radius:12px;margin-bottom:16px">' +
+      '      <p style="color:#94A3B8;font-size:12px;margin:0 0 4px">综合得分</p>' +
+      '      <p style="font-size:48px;font-weight:bold;color:' + scoreColor + ';margin:0">' + (report.score || '?') + '</p>' +
+      '      <p style="color:#94A3B8;font-size:12px;margin:4px 0 0">满分 100 · ' + (report.position || '') + ' · ' + (report.difficulty || '') + '</p>' +
+      '    </div>' +
+      '    <table style="width:100%;border-collapse:collapse;margin-bottom:16px">' +
+      '      <tr><td style="padding:6px 0;color:#64748B;font-size:13px">内容完整度</td><td style="text-align:right;font-weight:bold;color:#374151">' + ((report.dimensions && report.dimensions.content) || '-') + '</td></tr>' +
+      '      <tr><td style="padding:6px 0;color:#64748B;font-size:13px">表达逻辑</td><td style="text-align:right;font-weight:bold;color:#374151">' + ((report.dimensions && report.dimensions.logic) || '-') + '</td></tr>' +
+      '      <tr><td style="padding:6px 0;color:#64748B;font-size:13px">专业深度</td><td style="text-align:right;font-weight:bold;color:#374151">' + ((report.dimensions && report.dimensions.depth) || '-') + '</td></tr>' +
+      '      <tr><td style="padding:6px 0;color:#64748B;font-size:13px">STAR结构</td><td style="text-align:right;font-weight:bold;color:#374151">' + ((report.dimensions && report.dimensions.star) || '-') + '</td></tr>' +
+      '    </table>' +
+      '    <div style="margin-bottom:16px"><p style="font-weight:bold;color:#DC2626;font-size:14px;margin:0 0 8px">薄弱项</p>' + weaknessesHtml + '</div>' +
+      '    <div style="margin-bottom:16px"><p style="font-weight:bold;color:#374151;font-size:14px;margin:0 0 8px">逐题回顾</p>' +
+      '      <table style="width:100%;font-size:13px">' + roundsHtml + '</table></div>' +
+      '    <div><p style="font-weight:bold;color:#16A34A;font-size:14px;margin:0 0 8px">提升建议</p><ul style="padding-left:20px">' + suggestionsHtml + '</ul></div>' +
+      '  </div>' +
+      '  <div style="background:#F8FAFC;padding:16px 24px;border-radius:0 0 12px 12px;border:1px solid #E2E8F0;text-align:center">' +
+      '    <p style="color:#94A3B8;font-size:12px;margin:0">由「面了么」AI面试教练生成 · ' + new Date().toLocaleDateString('zh-CN') + '</p>' +
+      '  </div>' +
+      '</div>';
+
+    // EmailJS 已配置 → 静默发送
+    if (publicKey && serviceId && templateId) {
+      MianBa.ui.toast('正在发送邮件到 ' + user.email + '...', 'info');
+      emailjs.init(publicKey);
+      emailjs.send(serviceId, templateId, {
+        to_email: user.email,
+        subject: '面了么面试报告 — ' + (report.position || '未指定') + ' ' + report.score + '分',
+        html_body: htmlBody,
+      }).then(function() {
+        MianBa.ui.toast('报告已发送到 ' + user.email, 'success');
+      }).catch(function(err) {
+        console.warn('EmailJS 发送失败，降级为 mailto:', err);
+        MianBa.user._mailtoReport(user, report);
+      });
+    } else {
+      // 未配置 EmailJS → 降级为 mailto
+      this._mailtoReport(user, report);
+    }
+  },
+
+  // mailto 降级方案
+  _mailtoReport: function(user, report) {
+    var text = '面了么 AI 面试报告\n\n';
+    text += '综合得分：' + (report.score || '?') + ' / 100\n';
+    text += '岗位：' + (report.position || '') + '  难度：' + (report.difficulty || '') + '\n\n';
+    text += '── 四维评分 ──\n';
+    var d = report.dimensions || {};
+    text += '内容完整度：' + (d.content || '-') + '  表达逻辑：' + (d.logic || '-') + '\n';
+    text += '专业深度：' + (d.depth || '-') + '  STAR结构：' + (d.star || '-') + '\n\n';
+    text += '── 薄弱项 ──\n';
+    (report.weaknesses || []).forEach(function(w, i) { text += (i + 1) + '. ' + w + '\n'; });
+    text += '\n── 提升建议 ──\n';
+    (report.suggestions || []).forEach(function(s, i) { text += (i + 1) + '. ' + s + '\n'; });
+    text += '\n—— 面了么 AI面试教练';
+
+    var subject = encodeURIComponent('面了么面试报告 — ' + (report.position || '未指定') + ' ' + (report.score || '?') + '分');
+    var body = encodeURIComponent(text);
+    window.open('mailto:' + user.email + '?subject=' + subject + '&body=' + body, '_blank');
+    MianBa.ui.toast('已打开邮件客户端，请点击发送', 'info');
+  },
+
   // 退出登录
   logout: function() {
     MianBa.storage.remove(MianBa.Config.STORAGE_KEYS.USER);
