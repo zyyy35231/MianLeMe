@@ -26,11 +26,6 @@ MianBa.home = {
       '      <p class="text-slate-500 text-sm">雷达图+逐题点评+弱点标注，全面评估面试表现</p>' +
       '    </div>' +
       '  </div>' +
-      '  <div class="flex justify-center gap-12 py-6 border-t border-slate-200">' +
-      '    <div class="text-center"><div class="text-3xl font-bold text-blue-600">12,890+</div><div class="text-sm text-slate-500 mt-1">累计模拟次数</div></div>' +
-      '    <div class="text-center"><div class="text-3xl font-bold text-blue-600">5,000+</div><div class="text-sm text-slate-500 mt-1">面试题库</div></div>' +
-      '    <div class="text-center"><div class="text-3xl font-bold text-blue-600">98%</div><div class="text-sm text-slate-500 mt-1">用户好评率</div></div>' +
-      '  </div>' +
       '</div>';
     lucide.createIcons();
     document.getElementById('btn-cta').onclick = function() {
