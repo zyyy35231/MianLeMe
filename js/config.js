@@ -17,6 +17,13 @@ MianBa.Config = {
     EMAILJS_SERVICE: 'mb_emailjsService',
     EMAILJS_TEMPLATE: 'mb_emailjsTemplate',
   },
+  // EmailJS 服务端凭据（去 emailjs.com 注册后填入）
+  EMAILJS: {
+    PUBLIC_KEY: '',
+    SERVICE_ID: '',
+    TEMPLATE_ID: '',
+  },
+  },
   PLANS: {
     free: { name: '免费版', interviewLimit: 5, matchPerDay: 1, deepReport: false, enterprise: false },
     pro: { name: 'Pro版', interviewLimit: 999, matchPerDay: 10, deepReport: true, enterprise: false },

@@ -51,10 +51,11 @@ MianBa.user = {
       return;
     }
 
-    // 检查EmailJS配置
-    var publicKey = localStorage.getItem(MianBa.Config.STORAGE_KEYS.EMAILJS_KEY);
-    var serviceId = localStorage.getItem(MianBa.Config.STORAGE_KEYS.EMAILJS_SERVICE);
-    var templateId = localStorage.getItem(MianBa.Config.STORAGE_KEYS.EMAILJS_TEMPLATE);
+    // 从服务端配置读取EmailJS凭据
+    var ec = MianBa.Config.EMAILJS;
+    var publicKey = ec.PUBLIC_KEY;
+    var serviceId = ec.SERVICE_ID;
+    var templateId = ec.TEMPLATE_ID;
 
     // 构建HTML邮件
     var scoreColor = report.score >= 80 ? '#10B981' : report.score >= 60 ? '#F59E0B' : '#EF4444';
