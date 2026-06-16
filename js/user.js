@@ -22,8 +22,17 @@ MianBa.user = {
     return MianBa.Config.PLANS[this.getPlan()] || MianBa.Config.PLANS.free;
   },
 
-  // 登录/注册（合二为一）
+  // 登录/注册（合二为一，同邮箱恢复历史数据）
   login: function(name, email) {
+    // 检查是否有同邮箱的历史用户数据
+    var existing = MianBa.storage.getUser();
+    if (existing && existing.email === email) {
+      existing.isLoggedIn = true;
+      existing.name = name; // 允许更新昵称
+      MianBa.storage.saveUser(existing);
+      MianBa.ui.toast('欢迎回来，' + name + '！（数据已恢复）', 'success');
+      return;
+    }
     var user = {
       isLoggedIn: true,
       name: name,

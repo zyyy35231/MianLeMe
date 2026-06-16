@@ -93,13 +93,14 @@ MianBa.api = {
       '- 初级难度：侧重基础概念、行为面试题、学习能力考察\n' +
       '- 中级难度：侧重项目深挖、场景分析题、技术方案设计\n' +
       '- 高级难度：侧重系统设计、架构思维、压力题和综合能力\n\n' +
-      '## 追问策略（根据回答质量动态决定，1-3次）\n' +
+      '## 追问策略（最多追问2次，严格不超）\n' +
       '- 回答充分、STAR完整 → 不追问，直接进入下一题\n' +
       '- 回答尚可但有提升空间 → 追问1次，深挖细节\n' +
-      '- 回答模糊、缺乏细节 → 追问2-3次，逐步引导完善\n' +
-      '- 第一次追问：深挖实现细节（"具体是怎么实现的？用了什么技术？"）\n' +
-      '- 第二次追问：索要量化数据（"有具体数据吗？提升了多少？"）\n' +
-      '- 第三次追问（极少使用）：换角度追问（"如果换个场景呢？你觉得还有什么可以改进的？"）\n\n' +
+      '- 回答模糊、缺乏细节 → 追问最多2次，仍不满意则直接扣分进入下一题\n' +
+      '- 第一次追问：深挖【' + position + '】岗位相关的实现细节\n' +
+      '- 第二次追问：索要量化数据，追问后若仍未改善，点评中注明"多次追问无果"并减分\n' +
+      '- 所有追问必须紧扣【' + position + '】岗位内容，禁止偏离岗位方向\n' +
+      '- 追问超过1轮仍未获得满意回答时，starIssues 中注明"多次追问未果"\n\n' +
       '## 评估规则\n' +
       '- 检查回答的STAR完整性：是否说明了背景(S)、任务(T)、行动(A)、结果(R)\n' +
       '- 关注回答的逻辑性、专业深度、表达清晰度\n' +
@@ -217,15 +218,13 @@ MianBa.api = {
       }
     }
 
-    // 根据回答长度动态决定追问上限（回答越短→追问越多）
+    // 根据回答长度动态决定追问上限（最多2次）
     var lastAnswerLen = (lastMsg && lastMsg.content) ? lastMsg.content.length : 0;
     var maxFollowUps;
     if (lastAnswerLen < 30) {
-      maxFollowUps = 3;      // 回答很短，多追问
+      maxFollowUps = 2;      // 回答很短，追问2次
     } else if (lastAnswerLen < 80) {
-      maxFollowUps = 2;      // 中等长度
-    } else if (lastAnswerLen < 150) {
-      maxFollowUps = 1;      // 较长回答
+      maxFollowUps = 1;      // 中等长度，追问1次
     } else {
       maxFollowUps = 0;      // 足够详细，不追问
     }
@@ -238,14 +237,16 @@ MianBa.api = {
         if (followUpCount === 0 && curQ.followUp) {
           followUpText = curQ.followUp;
         } else if (followUpCount === 1) {
-          followUpText = '请再具体一些，有没有量化的数据或实际的案例能支撑你的说法？';
-        } else {
-          followUpText = '如果换个角度来思考这个问题呢？你还有什么想补充的吗？';
+          followUpText = '请结合' + position + '岗位的实际场景，再具体说说有没有量化的数据或案例？';
         }
+        // 最多追问2次，不再有第3次追问
         if (followUpText && Math.random() > 0.3) {
+          var starIssues = followUpCount >= 1
+            ? ['多次追问未果，建议准备更充分的' + position + '相关案例']
+            : ['需要更具体的' + position + '相关细节或数据'];
           return {
             reply: followUpText,
-            followUp: true, starIssues: ['需要更具体的细节或数据支撑'], suggestEnd: false,
+            followUp: true, starIssues: starIssues, suggestEnd: false,
             _wasFollowUp: true, _questionIndex: lastQIdx,
           };
         }

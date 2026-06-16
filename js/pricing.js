@@ -9,7 +9,7 @@ MianBa.pricing = {
         color: 'slate', recommended: false,
       },
       {
-        id: 'pro', name: 'Pro版', price: '¥29', period: '/月',
+        id: 'pro', name: 'Pro版', price: '¥19', period: '/月',
         features: ['模拟面试 无限题数', '简历智能分析', '深度STAR报告', '岗位匹配 10次/天', 'AI追问增强'],
         disabled: ['企业HR管理后台'],
         color: 'blue', recommended: true,
