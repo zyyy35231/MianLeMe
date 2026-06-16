@@ -89,10 +89,11 @@ MianBa.api = {
       '- 第1题固定为"请做自我介绍"\n' +
       weakStr +
       askedStr +
+      '- 所有题目必须严格围绕【' + position + '】岗位的专业领域出题，禁止提出与岗位无关的通用题\n' +
       '- 每道题必须是不同的考察方向，禁止提出与已问题目相似或相同的问题\n' +
-      '- 初级难度：侧重基础概念、行为面试题、学习能力考察\n' +
-      '- 中级难度：侧重项目深挖、场景分析题、技术方案设计\n' +
-      '- 高级难度：侧重系统设计、架构思维、压力题和综合能力\n\n' +
+      '- 初级难度：侧重' + position + '岗位的基础概念、行为面试题、学习能力考察\n' +
+      '- 中级难度：侧重' + position + '岗位的项目深挖、场景分析题、技术方案设计\n' +
+      '- 高级难度：侧重' + position + '岗位的系统设计、架构思维、压力题和综合能力\n\n' +
       '## 追问策略（最多追问2次，严格不超）\n' +
       '- 回答充分、STAR完整 → 不追问，直接进入下一题\n' +
       '- 回答尚可但有提升空间 → 追问1次，深挖细节\n' +
@@ -241,13 +242,11 @@ MianBa.api = {
         }
         // 最多追问2次，不再有第3次追问
         if (followUpText && Math.random() > 0.3) {
-          var starIssues = followUpCount >= 1
-            ? ['多次追问未果，建议准备更充分的' + position + '相关案例']
-            : ['需要更具体的' + position + '相关细节或数据'];
           return {
             reply: followUpText,
-            followUp: true, starIssues: starIssues, suggestEnd: false,
+            followUp: true, starIssues: ['需要更具体的' + position + '相关细节或数据'], suggestEnd: false,
             _wasFollowUp: true, _questionIndex: lastQIdx,
+            _multiFollowUp: followUpCount >= 1,
           };
         }
       }

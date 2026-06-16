@@ -328,10 +328,12 @@ MianBa.report = {
   // 规则引擎评分（API不可用时降级使用）
   _heuristicScore: function(answers, cfg, msgs, callback) {
     var allStarIssues = [];
+    var multiFollowUpCount = 0;
     msgs.forEach(function(m) {
       if (m.role === 'assistant' && m._starIssues && m._starIssues.length) {
         allStarIssues = allStarIssues.concat(m._starIssues);
       }
+      if (m._multiFollowUp) multiFollowUpCount++;
     });
 
     var totalLen = 0, hasNumber = 0, skipped = 0, validAnswers = 0;
@@ -395,6 +397,7 @@ MianBa.report = {
     if (avgLen < 30) weaknesses.push('回答普遍偏短');
     if (avgLen < 80 && avgLen >= 30) weaknesses.push('回答可更详细，建议用STAR法则展开');
     if (hasNumber < validAnswers * 0.5) weaknesses.push('量化数据意识较弱');
+    if (multiFollowUpCount > 0) weaknesses.push('有' + multiFollowUpCount + '题经多次追问仍未给出满意回答，建议针对薄弱领域深入准备');
     if (weaknesses.length === 0) weaknesses.push('整体表现不错！');
 
     var suggestions = [
